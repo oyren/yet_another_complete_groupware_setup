@@ -1,0 +1,54 @@
+version: '3.5'
+services:
+
+        haproxy:
+                container_name: haproxy
+                image: haproxy:latest
+                ports:
+                        - "80:80"
+                        - "443:443"
+                volumes:
+                        - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+                        - ./example.com.pem:/usr/local/etc/haproxy/example.com.pem:ro
+                networks:
+                        - gateway
+                        - mailcowdockerized_mailcow-network
+                restart: unless-stopped
+
+        seafile:
+                container_name: seafile
+                image: seafileltd/seafile:latest
+                volumes:
+                        - ./seafile-shared:/shared:rw
+                environment:
+                        - SEAFILE_SERVER_HOSTNAME=sea.example.com
+                networks:
+                        - gateway
+                restart: unless-stopped
+        
+        ddns:
+                image: davd/docker-ddns:latest
+                ports:
+                        - "53:53"
+                        - "53:53/udp"
+                networks:
+                        - gateway
+                environment:
+                        RECORD_TTL: 60
+                        ZONE: dyndns.example.com
+                        SHARED_SECRET: changeme
+                restart: unless-stopped
+
+        example_webpage:
+                build:
+                        context: ./example_welcome
+                        dockerfile: Dockerfile
+                networks:
+                        - gateway
+                restart: unless-stopped
+
+networks:
+        gateway:
+                driver: bridge
+        mailcowdockerized_mailcow-network:
+                external: true
