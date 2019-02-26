@@ -1,0 +1,18 @@
+= Complete Private Server Setup for E-Mail, Cloud and more
+ 
+Here I describe my server setup, which provides the following services:
+
+* E-Mail (https://mailcow.github.io/mailcow-dockerized-docs/[Mailcow])
+* Cloud (https://www.seafile.com/en/home/[Seafile])
+* Dynamic DNS (https://github.com/dprandzioch/docker-ddns[dprandzioch/docker-ddns @ Github])
+* OpenVPN (https://github.com/kylemanna/docker-openvpn[kylemanna/docker-openvpn @ Github])
+* A simple HTML Webpage
+
+This Setup is set behind http://www.haproxy.org/[HAProxy] and https://letsencrypt.org/[LetsEncrypt]. And is deployed with https://docs.docker.com/[Docker] and https://docs.docker.com/compose/[Docker-Compose], to keep it as simple as possible.
+
+I'm not a professional administrator and I run this setup privately only.
+
+This is not supposed to be a copy&paste tutorial, but will probably work as such as well.
+
+== Requirements
+== Setup
