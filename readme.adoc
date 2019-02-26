@@ -103,7 +103,7 @@ Nextcloud tries to provide everything but nothing reasonable. Just my two cents.
                         - SEAFILE_SERVER_HOSTNAME=sea.example.com # <2>
                 networks:
                         - gateway
-                restart: unless-stoppe
+                restart: unless-stopped
 ----
 <1> seafile-shared is the folder where seafile will store the data/config files
 <2> this is the server hostname under which you can reach seafile later
@@ -113,4 +113,29 @@ There you can find how to modify Seafile Server Configuration and so on.
 
 Since HAProxy takes care of SSL, Seafile does not need to do this.
 
+==== Dynamic DNS 
+
+This docker allows you to set up a dynamic DNS server that allows you to connect to devices at home from anywhere in the world.
+
+With this container you can sent a API request from your router (FritzBox in my case) and then you can reach your home network e.g. at home.dyndns.example.com (this will be needed for later offsite backup).
+How this goes you will find later under the subsection `Usage` or under the good documentation from https://github.com/dprandzioch/docker-ddns[dprandzioch @ Github].
+
+.docker-compose.yml
+[source,yml]
+----
+        ddns:
+                image: davd/docker-ddns:latest
+                ports:
+                        - "53:53"
+                        - "53:53/udp"
+                networks:
+                        - gateway
+                environment:
+                        RECORD_TTL: 60
+                        ZONE: dyndns.example.com # <1>
+                        SHARED_SECRET: changeme # <2>
+                restart: unless-stopped
+----
+<1> is your dyndns domain (NS-Zone)
+<2> SHARED_SECRET must be provided each time you update a DNS record via the API
 
