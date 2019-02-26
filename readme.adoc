@@ -90,7 +90,7 @@ SSL Termination is the practice of terminating/decrypting an SSL connection at t
 IMPORTANT: You also need to edit the `haproxy.cfg` (search for example.com and adjust it).
 
 ==== Seafile
-Next we have *Seafile*, which in my oponion is far better than Nextcloud.
+Next we have *Seafile*, which in my opinion is far better than Nextcloud.
 Nextcloud tries to provide everything but nothing reasonable. Just my two cents.
 
 .docker-compose.yml
