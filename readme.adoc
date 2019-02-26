@@ -33,8 +33,6 @@ https://docs.docker.com/install/linux/docker-ce/debian/[Docker]
 
 https://docs.docker.com/compose/install/[Docker-Compose]
 
-
-Beginning with HAProxy 
 === Let's Encrypt/Certbot installation
 Just like with Docker, there are enough instructions to install https://certbot.eff.org/[certbot].
 
@@ -53,7 +51,6 @@ Inside the `web` folder, you will find the `docker-compose.yml`.
 I will split the files into parts to explain them, you have to replace `example.com` with your own domain and make other adjustments if necessary. 
 
 ==== HAProxy
-
 Beginning with *HAProxy*, which we will use as a reserve proxy and which takes care of SSL.
 
 .docker-compose.yml
