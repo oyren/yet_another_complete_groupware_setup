@@ -34,6 +34,7 @@ https://docs.docker.com/install/linux/docker-ce/debian/[Docker]
 https://docs.docker.com/compose/install/[Docker-Compose
 
 
+Beginning with HAProxy 
 === Let's Encrypt/Certbot installation
 Just like with Docker, there are enough instructions to install https://certbot.eff.org/[certbot].
 
@@ -50,6 +51,11 @@ git clone https://github.com/mailcow/mailcow-dockerized.git /root/docker/mailcow
 === Configuration
 Inside the `web` folder, you will find the `docker-compose.yml`.
 I will split the files into parts to explain them, you have to replace `example.com` with your own domain and make other adjustments if necessary. 
+
+==== HAProxy
+
+Beginning with *HAProxy*, which we will use as a reserve proxy and which takes care of SSL.
+
 .docker-compose.yml
 [source,yml]
 ----
@@ -77,4 +83,34 @@ services:
 <5> gateway is the docker network to reach the other containers
 
 As you can see, all http/https requests are routed through HAProxy.
+
 SSL Termination is the practice of terminating/decrypting an SSL connection at the load balancer, and sending unencrypted connections to the backend servers.
+
+
+==== Seafile
+Next we have *Seafile*, which in my oponion is far better than Nextcloud.
+Nextcloud tries to provide everything but nothing reasonable. Just my two cents.
+
+.docker-compose.yml
+[source,yml]
+----
+        seafile:
+                container_name: seafile
+                image: seafileltd/seafile:latest
+                volumes:
+                        - ./seafile-shared:/shared:rw # <1>
+                environment:
+                        - SEAFILE_SERVER_HOSTNAME=sea.example.com # <2>
+                networks:
+                        - gateway
+                restart: unless-stoppe
+----
+<1> seafile-shared is the folder where seafile will store the data/config files
+<2> this is the server hostname under which you can reach seafile later
+
+Seafile is well documented, so as always I will just link it https://manual.seafile.com/deploy/deploy_with_docker.html[here].
+There you can find how to modify Seafile Server Configuration and so on.
+
+Since HAProxy takes care of SSL, Seafile does not need to do this.
+
+
