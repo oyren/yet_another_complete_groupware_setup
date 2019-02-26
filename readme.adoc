@@ -87,6 +87,7 @@ As you can see, all http/https requests are routed through HAProxy.
 
 SSL Termination is the practice of terminating/decrypting an SSL connection at the load balancer, and sending unencrypted connections to the backend servers.
 
+IMPORTANT: You also need to edit the `haproxy.cfg` (search for example.com and adjust it).
 
 ==== Seafile
 Next we have *Seafile*, which in my oponion is far better than Nextcloud.
