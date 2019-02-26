@@ -31,7 +31,7 @@ These steps are well documented on the official docker website, so I will just l
 
 https://docs.docker.com/install/linux/docker-ce/debian/[Docker]
 
-https://docs.docker.com/compose/install/[Docker-Compose
+https://docs.docker.com/compose/install/[Docker-Compose]
 
 
 Beginning with HAProxy 
