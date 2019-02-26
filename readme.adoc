@@ -1,3 +1,5 @@
+:toc:
+:toc-placement!:
 = Complete Private Server Setup for E-Mail, Cloud and more
  
 Here I describe my server setup, which provides the following services:
@@ -14,6 +16,8 @@ This Setup is set behind http://www.haproxy.org/[HAProxy] and https://letsencryp
 I'm not a professional administrator and I run this setup privately only.
 
 This is not supposed to be a copy&paste tutorial, but will probably work as such as well.
+
+toc::[]
 
 == Requirements
 
