@@ -38,8 +38,38 @@ https://docs.docker.com/compose/install/[Docker-Compose
 Create folder structure (you can customize the location if you want) and download the required files.
 [source,bash]
 ----
-mkdir -p /root/docker/web/welcome_page
-mkdir -p /root/docker/openvpn
+git clone https://github.com/oyren/yet_another_complete_groupware_setup /root/docker
 git clone https://github.com/mailcow/mailcow-dockerized.git /root/docker/mailcow-dockerized
-wget https://raw.githubusercontent.com/oyren/knowledge/master/server_setup/web/docker-compose.yml -P /root/docker/web
 ----
+
+
+=== Configuration
+Inside the `web` folder, you will find the `docker-compose.yml`.
+I will split the files into parts to explain them, you have to replace `example.com` with your own domain and make other adjustments if necessary. 
+.docker-compose.yml
+[source,yml]
+----
+version: '3.5'
+services:
+
+        haproxy:
+                container_name: haproxy
+                image: haproxy:latest
+                ports:
+                        - "80:80" # <1>
+                        - "443:443" # <2>
+                volumes:
+                        - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro # <3>
+                        - ./example.com.pem:/usr/local/etc/haproxy/example.com.pem:ro # <4>
+                networks:
+                        - gateway # <5>
+                        - mailcowdockerized_mailcow-network # <6>
+                restart: unless-stopped
+----
+<1> Bind http(80) host port to haproxy docker container
+<2> Bind https(443) host port to haproxy docker container
+<3> Forward haproxy.cfg with read only access
+<4> Forward example.com.pem to use SSL Termination in haproxy (more about this later)
+
+As you can see, all http/https requests are routed through HAProxy.
+SSL Termination is the practice of terminating/decrypting an SSL connection at the load balancer, and sending unencrypted connections to the backend servers.
