@@ -24,7 +24,7 @@ This is not supposed to be a copy&paste tutorial, but will probably work as such
 I'm using a VPS (virtual private server) from https://contabo.com/?show=vps[Contabo], called 'VPS L SSD' and a Intel NUC, both with Debian 10.
 
 == Setup
-=== Docker Installation
+=== Docker installation
 
 First we need to install Docker and Docker-Compose.
 These steps are well documented on the official docker website, so I will just link to them.
@@ -32,6 +32,10 @@ These steps are well documented on the official docker website, so I will just l
 https://docs.docker.com/install/linux/docker-ce/debian/[Docker]
 
 https://docs.docker.com/compose/install/[Docker-Compose
+
+
+=== Let's Encrypt/Certbot installation
+Just like with Docker, there are enough instructions to install https://certbot.eff.org/[certbot].
 
 
 === Folder Structure and Preparation
@@ -63,13 +67,14 @@ services:
                         - ./example.com.pem:/usr/local/etc/haproxy/example.com.pem:ro # <4>
                 networks:
                         - gateway # <5>
-                        - mailcowdockerized_mailcow-network # <6>
+                        - mailcowdockerized_mailcow-network
                 restart: unless-stopped
 ----
 <1> Bind http(80) host port to haproxy docker container
 <2> Bind https(443) host port to haproxy docker container
 <3> Forward haproxy.cfg with read only access
 <4> Forward example.com.pem to use SSL Termination in haproxy (more about this later)
+<5> gateway is the docker network to reach the other containers
 
 As you can see, all http/https requests are routed through HAProxy.
 SSL Termination is the practice of terminating/decrypting an SSL connection at the load balancer, and sending unencrypted connections to the backend servers.
