@@ -158,3 +158,39 @@ I wrote a small website to get faster access to the subpages like SOGo from mail
 <1> folder where the Dockerfile is placed (you can easly change this)
 
 The index.html and Dockerfile is placed inside the example_welcome folder and should be self-explanatory.
+
+
+==== Mailcow
+You should have already cloned mailcow.
+
+And renew we can use the already existing documentation.
+
+First follow the Prerequisites:
+
+* https://mailcow.github.io/mailcow-dockerized-docs/prerequisite-system/[Prepare Your System]
+
+* https://mailcow.github.io/mailcow-dockerized-docs/prerequisite-dns/[DNS Setup]
+
+IMPORTANT: In the Section DNS Setup below I will go into it in more detail.
+
+Check if `umask` returns 0022.
+
+Then follow the instructions starting at point 3:
+
+* https://mailcow.github.io/mailcow-dockerized-docs/install/[Installation]
+
+IMPORTANT: We use HAProxy as reserve proxy and to operate SSL, so there are some Important points in `mailcow.conf`, they are listed below. Skip `docker-compose up -d` for the moment.
+
+.mailcow.conf
+[source,bash]
+----
+HTTP_BIND=127.0.0.1
+HTTP_PORT=8080
+HTTPS_BIND=127.0.0.1
+HTTPS_PORT=8443
+
+ADDITIONAL_SAN=imap.example.com,smtp.example.com
+
+# Skip running ACME (acme-mailcow, Let's Encrypt certs) - y/n
+SKIP_LETS_ENCRYPT=y
+----
