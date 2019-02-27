@@ -40,6 +40,18 @@ https://docs.docker.com/compose/install/[Docker-Compose]
 === Let's Encrypt/Certbot installation
 Just like with Docker, there are enough instructions to install https://certbot.eff.org/[certbot].
 
+Inside `cli.ini`, we configure Let's Encrypt.
+
+./etc/letsencrypt/cli.ini
+[source,bash]
+----
+rsa-key-size = 4096
+email = yourmail@example.com
+authenticator = standalone
+domains = example.com, www.example.com, sea.example.com, autoconfig.example.com, autodiscover.example.com, imap.example.com, mx.example.com, smtp.example.com, ns.example.com
+----
+
+IMPORTANT: Under the point domains, we enter the url's for which we want to have an SSL certificate.
 
 === Folder Structure and Preparation
 Create folder structure (you can customize the location if you want) and download the required files.
@@ -226,3 +238,35 @@ vpn.example.com             A           1.2.3.4
 www.example.com             A           1.2.3.4
                             AAAA        2222:1111:3333::1
 ----
+
+=== Get and renew SSL Certificate
+
+IMPORTANT: Let's Encrypt certificates have a ninety-day lifetimes, so you have to renew them, before they expire.
+
+You could run it through a cronjob regularly.
+
+IMPORTANT: Also here you have to change `example.com` and the path if necessary.
+
+[source,bash]
+----
+docker-compose -f /root/docker/mailcow-dockerized/docker-compose.yml down
+docker-compose -f /root/docker/web/docker-compose.yml down
+certbot certonly
+cat /etc/letsencrypt/live/example.com/fullchain.pem /etc/letsencrypt/live/example.com/privkey.pem > /root/docker/web/example.com.pem
+cp /etc/letsencrypt/live/example.com/fullchain.pem /root/docker/mailcow-dockerized/data/assets/ssl/cert.pem
+cp /etc/letsencrypt/live/example.com/privkey.pem  /root/docker/mailcow-dockerized/data/assets/ssl/key.pem
+docker-compose -f /root/docker/mailcow-dockerized/docker-compose.yml up -d
+docker-compose -f /root/docker/web/docker-compose.yml up -d
+----
+As you can see the certificate will be copied at 2 places, once for haproxy and for mailcow.
+
+
+
+=== Startup
+[source,bash]
+----
+docker-compose -f /root/docker/mailcow-dockerized/docker-compose.yml up -d
+docker-compose -f /root/docker/web/docker-compose.yml up -d
+----
+
+=== Backup
