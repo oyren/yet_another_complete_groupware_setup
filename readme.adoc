@@ -196,6 +196,7 @@ SKIP_LETS_ENCRYPT=y
 
 
 ==== DNS Records
+This is how my DNS Records look like:
 [source]
 ----
 # Name                      Type        Value
