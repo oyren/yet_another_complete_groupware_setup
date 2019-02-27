@@ -155,12 +155,12 @@ I wrote a small website to get faster access to the subpages like SOGo from mail
                         - gateway
                 restart: unless-stopped
 ----
-<1> folder where the Dockerfile is placed (you can easly change this)
+<1> folder where the Dockerfile is placed (you can easily change this)
 
 The index.html and Dockerfile is placed inside the example_welcome folder and should be self-explanatory.
 
-
 ==== Mailcow
+
 You should have already cloned mailcow.
 
 And renew we can use the already existing documentation.
@@ -171,7 +171,6 @@ First follow the Prerequisites:
 
 * https://mailcow.github.io/mailcow-dockerized-docs/prerequisite-dns/[DNS Setup]
 
-IMPORTANT: In the Section DNS Setup below I will go into it in more detail.
 
 Check if `umask` returns 0022.
 
@@ -193,4 +192,36 @@ ADDITIONAL_SAN=imap.example.com,smtp.example.com
 
 # Skip running ACME (acme-mailcow, Let's Encrypt certs) - y/n
 SKIP_LETS_ENCRYPT=y
+----
+
+
+==== DNS Records
+[source]
+----
+# Name                      Type        Value
+example.com                 A           1.2.3.4
+                            AAAA        2222:1111:3333::1
+                            CAA         letsencrypt.org
+                            MX          mx.example.com
+                            TXT         "v=spf1 mx ~all"
+autoconfig.example.com      A           1.2.3.4
+                            AAAA        2222:1111:3333::1
+autodiscover.example.com    A           1.2.3.4
+                            AAAA        2222:1111:3333::1
+dkim._domainkey.example.com TXT         v=DKIM1;k=rsa;t=s;s=email;p=....
+dyndns.example.com          NS          ns.example.com
+imap.example.com            A           1.2.3.4
+                            AAAA        2222:1111:3333::1
+mx.example.com              A           1.2.3.4
+                            AAAA        2222:1111:3333::1
+ns.example.com              A           1.2.3.4
+                            AAAA        2222:1111:3333::1
+sea.example.com             A           1.2.3.4
+                            AAAA        2222:1111:3333::1
+smtp.example.com            A           1.2.3.4
+                            AAAA        2222:1111:3333::1
+vpn.example.com             A           1.2.3.4
+                            AAAA        2222:1111:3333::1
+www.example.com             A           1.2.3.4
+                            AAAA        2222:1111:3333::1
 ----
