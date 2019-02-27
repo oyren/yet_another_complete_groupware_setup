@@ -1,5 +1,6 @@
 :toc:
 :toc-placement!:
+:toclevels: 4
 = Complete Private Server Setup for E-Mail, Cloud and more
  
 Here I describe my server setup, which provides the following services:
