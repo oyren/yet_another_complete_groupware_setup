@@ -419,4 +419,4 @@ rm -R /backup/seafile_database/*
 Borg Backup is also very well documented https://borgbackup.readthedocs.io/en/stable/index.html[here].
 
 
-This Script was shamelessly stolen by https://wiki.hetzner.de/index.php/BorgBackup[hetzner] and adapted by me.
+This Script was shamelessly stolen by https://wiki.hetzner.de/index.php/BorgBackup[Hetzner] and adapted by me.
