@@ -28,6 +28,8 @@ toc::[]
 
 I'm using a VPS (virtual private server) from https://contabo.com/?show=vps[Contabo], called 'VPS L SSD' and a Intel NUC, both with Debian 10.
 
+IMPORTANT: You should secure your server and your ssh connection. 
+
 == Setup
 === Docker installation
 
@@ -240,6 +242,7 @@ www.example.com             A           1.2.3.4
                             AAAA        2222:1111:3333::1
 ----
 
+
 === Get and renew SSL Certificate
 
 IMPORTANT: Let's Encrypt certificates have a ninety-day lifetimes, so you have to renew them, before they expire.
@@ -270,4 +273,150 @@ docker-compose -f /root/docker/mailcow-dockerized/docker-compose.yml up -d
 docker-compose -f /root/docker/web/docker-compose.yml up -d
 ----
 
-=== Backup
+== Usage
+Now you should reach the following services under the following links:
+
+|===
+| Services | url 
+
+| Seafile | sea.example.com 
+| SOGo | mx.example.com/SOGo
+| Mailcow Admin/UI | mx.example.com
+| Welcome Webpage | example.com 
+|===
+
+===== Dynamic DNS
+With the following API request you can set a IPv4 or IPv6 address.
+[source,bash]
+----
+https://ns.example.eu/update?secret=<yourpw>&domain=home&addr=1.2.3.4
+----
+
+* `secret`: The shared secret set before
+* `domain`: The subdomain to your configured domain, in this example it would result in home.dyndns.example.com. 
+* `addr`: IPv4 or IPv6 address of the name record
+
+Then you can reach the registered IP under home.dyndns.example.com (1.2.3.4).
+
+ https://www.davd.io/build-your-own-dynamic-dns-in-5-minutes/[Here] you can read more about it.
+
+=== Troubleshooting/Debugging
+You can view the logs of the individual containers simply with the following command:
+[source,bash]
+----
+docker logs -f container_name
+----
+
+== Backup
+As backup system I use borg backup, which runs on an intel nuc at my home.
+
+I reach the intel nuc via ssh and the previously established dynamic dns service, to reach it i just had to forward the ssh port in my router settings to nuc.
+
+IMPORTANT: You should secure your SSH Login. Among others, I use a public key authentication.
+
+
+.One time initialization
+[source,bash]
+----
+borg init --encryption=repokey ssh://serverbackup@home.dyndns.example.com:22/./backup
+----
+
+The backup is performed once a day (cronjob) and is based on the following script. Which should be understandable on the basis of the comments.
+
+./backup/backup.sh
+[source,bash]
+----
+#!/usr/bin/env bash
+
+## Create log folder
+mkdir -p /var/log/borg
+
+##
+## export enviroment variables
+##
+
+## Path to SSH Key
+export BORG_RSH="ssh -i /root/.ssh/serverbackup_ed25519"
+
+## Borg Repository Password
+export BORG_PASSPHRASE="YOUR_BORG_Password"
+
+##
+## set the variables
+##
+
+## log file and path
+LOG="/var/log/borg/backup.log"
+
+## Backup user on your remote machine (intel nuc in my case)
+BACKUP_USER="serverbackup"
+
+## Backup location (/home/serverbackup/backup)
+REPOSITORY_DIR="./backup"
+
+## put everything together and hand over the domain under which the backup server can be reached 
+REPOSITORY="ssh://${BACKUP_USER}@home.dyndns.example.com:22/${REPOSITORY_DIR}"
+
+##
+## Write output to logfile 
+##
+
+exec > >(tee -i ${LOG})
+exec 2>&1
+
+echo "###### Backup started: $(date) ######"
+
+## Create list of installed software
+dpkg --get-selections > /backup/software.list
+
+## I use the path /backup to store the mailcow backups and the seafile mysqldump's
+## create needed folders if not exist
+mkdir -p /backup/seafile_database
+mkdir -p /backup/mailcow/
+
+## Mailcow Backup
+## https://mailcow.github.io/mailcow-dockerized-docs/b_n_r_backup/
+export MAILCOW_BACKUP_LOCATION=/backup/mailcow
+/root/docker/mailcow-dockerized/helper-scripts/backup_and_restore.sh backup all
+
+## Seafile
+## https://manual.seafile.com/deploy/deploy_with_docker.html
+docker exec -it seafile mysqldump  -uroot --opt ccnet_db > /backup/seafile_database/$(date +%F_%R)_ccnet_db.sql
+docker exec -it seafile mysqldump  -uroot --opt seafile_db > /backup/seafile_database/$(date +%F_%R)_seafile_db.sql
+docker exec -it seafile mysqldump  -uroot --opt seahub_db > /backup/seafile_database/$(date +%F_%R)_seahub_db.sql
+
+echo "Transfer Files ..."
+
+## Here files and folders which are backed up and which are excluded are configured.
+borg create -v --stats                   	\
+    $REPOSITORY::'{now:%Y-%m-%d_%H:%M}'  	\
+    /root                                	\
+    /etc                                 	\
+    /backup                              	\
+    /var/spool/cron                      	\
+    --exclude /root/docker/iota_iri/data 	\
+    --exclude /root/docker/mailcow-dockerized	\
+    --exclude /sys                       	\
+    --exclude /var/run                   	\
+    --exclude /run                       	\
+    --exclude /lost+found                	\
+    --exclude /mnt                       	
+
+
+echo "###### Backup finished: $(date) ######"
+
+
+## Cleanup
+borg prune -v ${REPOSITORY}	 		\
+	--keep-daily=7 				\
+	--keep-weekly=4 			\
+	--keep-monthly=6
+
+rm -R /backup/mailcow/*
+rm -R /backup/seafile_database/*
+----
+
+Borg Backup is also very well documented https://borgbackup.readthedocs.io/en/stable/index.html[here].
+
+
+This Script was shamelessly stolen by https://wiki.hetzner.de/index.php/BorgBackup[hetzner] and adapted by me.
