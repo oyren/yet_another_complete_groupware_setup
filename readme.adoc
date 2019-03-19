@@ -255,7 +255,7 @@ IMPORTANT: Also here you have to change `example.com` and the path if necessary.
 ----
 docker-compose -f /root/docker/mailcow-dockerized/docker-compose.yml down
 docker-compose -f /root/docker/web/docker-compose.yml down
-certbot certonly
+certbot certonly --expand
 cat /etc/letsencrypt/live/example.com/fullchain.pem /etc/letsencrypt/live/example.com/privkey.pem > /root/docker/web/example.com.pem
 cp /etc/letsencrypt/live/example.com/fullchain.pem /root/docker/mailcow-dockerized/data/assets/ssl/cert.pem
 cp /etc/letsencrypt/live/example.com/privkey.pem  /root/docker/mailcow-dockerized/data/assets/ssl/key.pem
