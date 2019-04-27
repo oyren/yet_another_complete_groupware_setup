@@ -28,7 +28,10 @@ toc::[]
 
 I'm using a VPS (virtual private server) from https://contabo.com/?show=vps[Contabo], called 'VPS L SSD' and a Intel NUC, both with Debian 10.
 
-IMPORTANT: You should secure your server and your ssh connection. 
+IMPORTANT: You should secure your server and your ssh connection.
+
+== Drawbacks
+* Mailcow must be started before haproxy, because they share the mailcow network.
 
 == Setup
 === Docker installation
