@@ -114,7 +114,7 @@ Nextcloud tries to provide everything but nothing reasonable. Just my two cents.
 .docker-compose.yml
 [source,yml]
 ----
-	db: #seafile_db
+        db: #seafile_db
                 container_name: seafile-mysql
                 image: mariadb:10.1
                 environment:
