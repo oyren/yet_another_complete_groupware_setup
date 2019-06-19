@@ -114,19 +114,42 @@ Nextcloud tries to provide everything but nothing reasonable. Just my two cents.
 .docker-compose.yml
 [source,yml]
 ----
+	db: #seafile_db
+                container_name: seafile-mysql
+                image: mariadb:10.1
+                environment:
+                        - MYSQL_ROOT_PASSWORD=secret_pw # Requested, set the root's password of MySQL service.
+                        - MYSQL_LOG_CONSOLE=true
+                volumes:
+                        - ./seafile-mysql/db:/var/lib/mysql <1> # Requested, specifies the path to MySQL data persistent store.
+                networks:
+                        - seafile-net
+            
+        memcached:
+                container_name: seafile-memcached
+                image: memcached:1.5.6
+                entrypoint: memcached -m 256
+                networks:
+                        - seafile-net
+                      
         seafile:
                 container_name: seafile
-                image: seafileltd/seafile:latest
+                image: seafileltd/seafile-mc:latest
                 volumes:
-                        - ./seafile-shared:/shared:rw # <1>
+                        - ./seafile-shared:/shared <2>
                 environment:
-                        - SEAFILE_SERVER_HOSTNAME=sea.example.com # <2>
+                  - DB_HOST=db
+                  - DB_ROOT_PASSWD=secret_pw # Requested, the value shuold be root's password of MySQL service.
+                  - SEAFILE_SERVER_LETSENCRYPT=false   # Whether to use https or not.
+                depends_on:
+                  - db
+                  - memcached
                 networks:
-                        - gateway
-                restart: unless-stopped
+                  - seafile-net
+ 
 ----
-<1> seafile-shared is the folder where seafile will store the data/config files
-<2> this is the server hostname under which you can reach seafile later
+<1> seafile-mysql is the folder where seafile will store the database
+<2> seafile-shared is the folder where seafile will store the data/config files
 
 Seafile is well documented, so as always I will just link it https://manual.seafile.com/deploy/deploy_with_docker.html[here].
 There you can find how to modify Seafile Server Configuration and so on.
@@ -384,9 +407,9 @@ export MAILCOW_BACKUP_LOCATION=/backup/mailcow
 
 ## Seafile
 ## https://manual.seafile.com/deploy/deploy_with_docker.html
-docker exec -it seafile mysqldump  -uroot --opt ccnet_db > /backup/seafile_database/$(date +%F_%R)_ccnet_db.sql
-docker exec -it seafile mysqldump  -uroot --opt seafile_db > /backup/seafile_database/$(date +%F_%R)_seafile_db.sql
-docker exec -it seafile mysqldump  -uroot --opt seahub_db > /backup/seafile_database/$(date +%F_%R)_seahub_db.sql
+docker exec -it seafile-mysql mysqldump  -uroot --opt ccnet_db > /backup/seafile_database/$(date +%F_%R)_ccnet_db.sql
+docker exec -it seafile-mysql mysqldump  -uroot --opt seafile_db > /backup/seafile_database/$(date +%F_%R)_seafile_db.sql
+docker exec -it seafile-mysql mysqldump  -uroot --opt seahub_db > /backup/seafile_database/$(date +%F_%R)_seahub_db.sql
 
 echo "Transfer Files ..."
 

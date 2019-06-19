@@ -15,16 +15,38 @@ services:
                         - mailcowdockerized_mailcow-network
                 restart: unless-stopped
 
+        db: #seafile_db
+                container_name: seafile-mysql
+                image: mariadb:10.1
+                environment:
+                        - MYSQL_ROOT_PASSWORD=secret_pw # Requested, set the root's password of MySQL service.
+                        - MYSQL_LOG_CONSOLE=true
+                volumes:
+                        - ./seafile-mysql/db:/var/lib/mysql  # Requested, specifies the path to MySQL data persistent store.
+                networks:
+                        - seafile-net
+            
+        memcached:
+                container_name: seafile-memcached
+                image: memcached:1.5.6
+                entrypoint: memcached -m 256
+                networks:
+                        - seafile-net
+                      
         seafile:
                 container_name: seafile
-                image: seafileltd/seafile:latest
+                image: seafileltd/seafile-mc:latest
                 volumes:
-                        - ./seafile-shared:/shared:rw
+                        - ./seafile-shared:/shared
                 environment:
-                        - SEAFILE_SERVER_HOSTNAME=sea.example.com
+                  - DB_HOST=db
+                  - DB_ROOT_PASSWD=secret_pw # Requested, the value shuold be root's password of MySQL service.
+                  - SEAFILE_SERVER_LETSENCRYPT=false   # Whether to use https or not.
+                depends_on:
+                  - db
+                  - memcached
                 networks:
-                        - gateway
-                restart: unless-stopped
+                  - seafile-net
         
         ddns:
                 image: davd/docker-ddns:latest
