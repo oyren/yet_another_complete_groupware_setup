@@ -12,6 +12,7 @@ services:
                         - ./example.com.pem:/usr/local/etc/haproxy/example.com.pem:ro
                 networks:
                         - gateway
+                        - seafile-net
                         - mailcowdockerized_mailcow-network
                 restart: unless-stopped
 
