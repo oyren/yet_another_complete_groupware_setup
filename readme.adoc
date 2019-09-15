@@ -279,14 +279,22 @@ IMPORTANT: Also here you have to change `example.com` and the path if necessary.
 
 [source,bash]
 ----
-docker-compose -f /root/docker/mailcow-dockerized/docker-compose.yml down
-docker-compose -f /root/docker/web/docker-compose.yml down
-certbot certonly --expand --non-interactive
+#!/bin/bash
+# the ( ; ) part lets you execute a command from another directory in bash
+# this makes it more reliable, as docker the folder name to name volumes
+(cd /root/docker/web/ ; docker-compose down)
+# Wait a few seconds, so there won't be any conflicts.
+sleep 15
+(cd /root/docker/mailcow-dockerized/ ; docker-compose down)
+
+certbot certonly --expand --non-interactive --cert-name example.com
 cat /etc/letsencrypt/live/example.com/fullchain.pem /etc/letsencrypt/live/example.com/privkey.pem > /root/docker/web/example.com.pem
 cp /etc/letsencrypt/live/example.com/fullchain.pem /root/docker/mailcow-dockerized/data/assets/ssl/cert.pem
 cp /etc/letsencrypt/live/example.com/privkey.pem  /root/docker/mailcow-dockerized/data/assets/ssl/key.pem
-docker-compose -f /root/docker/mailcow-dockerized/docker-compose.yml up -d
-docker-compose -f /root/docker/web/docker-compose.yml up -d
+
+(cd /root/docker/mailcow-dockerized/ ; docker-compose up -d)
+sleep 15
+(cd /root/docker/web/ ; docker-compose up -d)
 ----
 As you can see the certificate will be copied at 2 places, once for haproxy and for mailcow.
 
