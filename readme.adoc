@@ -200,6 +200,12 @@ I wrote a small website to get faster access to the subpages like SOGo from mail
 
 The index.html and Dockerfile is placed inside the example_welcome folder and should be self-explanatory.
 
+IMPORTANT: If you change anything on the html page, you have to rebuild the container. There are several ways to do this, I use the following command (service_name = example_webpage).
+[source,bash]
+----
+docker-compose up -d --no-deps --build <service_name>
+----
+
 ==== Mailcow
 
 You should have already cloned mailcow.
